@@ -34,7 +34,11 @@ class _SplashScreenState extends State<SplashScreen> {
       body: Center(
         child: Text(
           'JTG Prints',
-          style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );

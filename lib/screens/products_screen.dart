@@ -22,10 +22,22 @@ class _ProductosScreenState extends State<ProductosScreen> {
     obtenerProductos();
   }
 
+  String convertirEnlaceDriveADirecto(String enlaceDrive) {
+    final regExp = RegExp(r'/d/([a-zA-Z0-9_-]+)');
+    final match = regExp.firstMatch(enlaceDrive);
+    if (match != null && match.groupCount >= 1) {
+      final id = match.group(1);
+      return 'https://drive.google.com/uc?export=view&id=$id';
+    } else {
+      return enlaceDrive;
+    }
+  }
+
   Future<void> obtenerProductos() async {
     try {
-      final snapshot =
-          await FirebaseFirestore.instance.collection('productos').get();
+      final snapshot = await FirebaseFirestore.instance
+          .collection('productos')
+          .get();
 
       if (snapshot.docs.isEmpty) {
         print('⚠️ No hay productos en la colección Firestore.');
@@ -34,11 +46,16 @@ class _ProductosScreenState extends State<ProductosScreen> {
 
       final lista = snapshot.docs.map((doc) {
         final data = doc.data();
+        final imagenOriginal = data['imagen'] ?? '';
+        final imagenConvertida = imagenOriginal.isNotEmpty
+            ? convertirEnlaceDriveADirecto(imagenOriginal)
+            : null;
+
         return {
           'id': doc.id,
           'nombre': data['nombre'],
           'precio': data['precio'],
-          'imagen': data['imagen'],
+          'imagen': imagenConvertida,
         };
       }).toList();
 
@@ -67,68 +84,16 @@ class _ProductosScreenState extends State<ProductosScreen> {
       carrito.add(producto);
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text('${producto['nombre']} añadido al carrito'),
-      duration: const Duration(seconds: 1),
-    ));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${producto['nombre']} añadido al carrito'),
+        duration: const Duration(seconds: 1),
+      ),
+    );
   }
 
-  void mostrarCarrito() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) {
-        return StatefulBuilder(builder: (context, setModalState) {
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'Carrito de Compras',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10),
-                carrito.isEmpty
-                    ? const Text('El carrito está vacío.')
-                    : ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: carrito.length,
-                        itemBuilder: (context, index) {
-                          final item = carrito[index];
-                          return ListTile(
-                            title: Text(item['nombre']),
-                            subtitle: Text(
-                                'S/ ${item['precio'].toStringAsFixed(2)}'),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () {
-                                setModalState(() {
-                                  carrito.removeAt(index);
-                                });
-                                setState(() {}); // actualizar badge
-                              },
-                            ),
-                          );
-                        },
-                      ),
-                const SizedBox(height: 10),
-                if (carrito.isNotEmpty)
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.pop(context); // cerrar modal
-                      Navigator.pushNamed(context, '/checkout',
-                          arguments: carrito);
-                    },
-                    icon: const Icon(Icons.payment),
-                    label: const Text('Comprar'),
-                  ),
-              ],
-            ),
-          );
-        });
-      },
-    );
+  void irAlCarrito() {
+    Navigator.pushNamed(context, '/carrito', arguments: carrito);
   }
 
   void cerrarSesion() async {
@@ -154,7 +119,7 @@ class _ProductosScreenState extends State<ProductosScreen> {
               IconButton(
                 icon: const Icon(Icons.shopping_cart),
                 tooltip: 'Carrito',
-                onPressed: mostrarCarrito,
+                onPressed: irAlCarrito,
               ),
               if (carrito.isNotEmpty)
                 Positioned(
@@ -168,8 +133,7 @@ class _ProductosScreenState extends State<ProductosScreen> {
                     ),
                     child: Text(
                       '${carrito.length}',
-                      style:
-                          const TextStyle(color: Colors.white, fontSize: 12),
+                      style: const TextStyle(color: Colors.white, fontSize: 12),
                     ),
                   ),
                 ),
@@ -187,8 +151,9 @@ class _ProductosScreenState extends State<ProductosScreen> {
               decoration: InputDecoration(
                 labelText: 'Buscar producto...',
                 prefixIcon: const Icon(Icons.search),
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             ),
           ),
@@ -199,31 +164,37 @@ class _ProductosScreenState extends State<ProductosScreen> {
                     itemCount: productosFiltrados.length,
                     itemBuilder: (context, index) {
                       final producto = productosFiltrados[index];
+                      final imagen = producto['imagen'];
                       return ListTile(
-                        leading: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.network(
-                            producto['imagen'],
-                            width: 60,
-                            height: 60,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                const Icon(Icons.broken_image),
-                            loadingBuilder: (context, child, progress) {
-                              if (progress == null) return child;
-                              return const SizedBox(
-                                width: 60,
-                                height: 60,
-                                child: Center(
-                                  child: CircularProgressIndicator(strokeWidth: 2),
+                        leading: imagen != null && imagen.isNotEmpty
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.network(
+                                  imagen,
+                                  width: 60,
+                                  height: 60,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      const Icon(Icons.broken_image),
+                                  loadingBuilder: (context, child, progress) {
+                                    if (progress == null) return child;
+                                    return const SizedBox(
+                                      width: 60,
+                                      height: 60,
+                                      child: Center(
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
-                              );
-                            },
-                          ),
-                        ),
+                              )
+                            : const Icon(Icons.image_not_supported),
                         title: Text(producto['nombre']),
                         subtitle: Text(
-                            'S/ ${producto['precio'].toStringAsFixed(2)}'),
+                          'S/ ${producto['precio'].toStringAsFixed(2)}',
+                        ),
                         trailing: IconButton(
                           icon: const Icon(Icons.add_shopping_cart),
                           onPressed: () => agregarAlCarrito(producto),

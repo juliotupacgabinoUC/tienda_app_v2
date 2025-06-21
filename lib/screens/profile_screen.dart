@@ -39,7 +39,9 @@ class ProfileScreen extends StatelessWidget {
           final datos = snapshot.data;
 
           if (datos == null) {
-            return const Center(child: Text('No se encontraron datos del cliente'));
+            return const Center(
+              child: Text('No se encontraron datos del cliente'),
+            );
           }
 
           return Padding(
@@ -47,12 +49,28 @@ class ProfileScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.account_circle, size: 100, color: Colors.deepPurple),
+                const Icon(
+                  Icons.account_circle,
+                  size: 100,
+                  color: Colors.deepPurple,
+                ),
                 const SizedBox(height: 10),
-                Text('Nombre: ${datos['nombre']}', style: const TextStyle(fontSize: 18)),
-                Text('Correo: ${datos['email']}', style: const TextStyle(fontSize: 18)),
-                Text('Teléfono: ${datos['telefono']}', style: const TextStyle(fontSize: 18)),
-                Text('Dirección: ${datos['direccion']}', style: const TextStyle(fontSize: 18)),
+                Text(
+                  'Nombre: ${datos['nombre']}',
+                  style: const TextStyle(fontSize: 18),
+                ),
+                Text(
+                  'Correo: ${datos['email']}',
+                  style: const TextStyle(fontSize: 18),
+                ),
+                Text(
+                  'Teléfono: ${datos['telefono']}',
+                  style: const TextStyle(fontSize: 18),
+                ),
+                Text(
+                  'Dirección: ${datos['direccion']}',
+                  style: const TextStyle(fontSize: 18),
+                ),
               ],
             ),
           );

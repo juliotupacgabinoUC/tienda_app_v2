@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
 
 class CheckoutScreen extends StatelessWidget {
-  const CheckoutScreen({super.key});
+  const CheckoutScreen({
+    super.key,
+    required List<Map<String, dynamic>> carrito,
+  });
 
   @override
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> carrito =
-        ModalRoute.of(context)?.settings.arguments as List<Map<String, dynamic>>;
+        ModalRoute.of(context)?.settings.arguments
+            as List<Map<String, dynamic>>;
 
-    final double total = carrito.fold(0.0, (sum, item) => sum + (item['precio'] as double));
+    final double total = carrito.fold(
+      0.0,
+      (sum, item) => sum + (item['precio'] as double),
+    );
 
     return Scaffold(
       appBar: AppBar(title: const Text('Finalizar Compra')),
@@ -16,23 +23,47 @@ class CheckoutScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            const Text('Resumen de Productos', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              'Resumen de Productos',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 10),
-            ...carrito.map((item) => ListTile(
-                  title: Text(item['nombre']),
-                  trailing: Text('S/ ${item['precio'].toStringAsFixed(2)}'),
-                )),
+            ...carrito.map(
+              (item) => ListTile(
+                title: Text(item['nombre']),
+                trailing: Text('S/ ${item['precio'].toStringAsFixed(2)}'),
+              ),
+            ),
             const Divider(),
-            Text('Total: S/ ${total.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(
+              'Total: S/ ${total.toStringAsFixed(2)}',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 20),
-            const Text('Información de Entrega', style: TextStyle(fontSize: 16)),
-            const TextField(decoration: InputDecoration(labelText: 'Dirección de envío')),
-            const TextField(decoration: InputDecoration(labelText: 'Referencia')),
+            const Text(
+              'Información de Entrega',
+              style: TextStyle(fontSize: 16),
+            ),
+            const TextField(
+              decoration: InputDecoration(labelText: 'Dirección de envío'),
+            ),
+            const TextField(
+              decoration: InputDecoration(labelText: 'Referencia'),
+            ),
             const SizedBox(height: 20),
-            const Text('Información de Pago (simulada)', style: TextStyle(fontSize: 16)),
-            const TextField(decoration: InputDecoration(labelText: 'Nombre en la tarjeta')),
-            const TextField(decoration: InputDecoration(labelText: 'Número de tarjeta')),
-            const TextField(decoration: InputDecoration(labelText: 'Código de seguridad')),
+            const Text(
+              'Información de Pago (simulada)',
+              style: TextStyle(fontSize: 16),
+            ),
+            const TextField(
+              decoration: InputDecoration(labelText: 'Nombre en la tarjeta'),
+            ),
+            const TextField(
+              decoration: InputDecoration(labelText: 'Número de tarjeta'),
+            ),
+            const TextField(
+              decoration: InputDecoration(labelText: 'Código de seguridad'),
+            ),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
@@ -54,7 +85,7 @@ class CheckoutScreen extends StatelessWidget {
                 );
               },
               child: const Text('Confirmar compra'),
-            )
+            ),
           ],
         ),
       ),
