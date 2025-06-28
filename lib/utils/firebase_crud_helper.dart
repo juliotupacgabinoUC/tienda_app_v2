@@ -1,3 +1,4 @@
+// lib/utils/firebase_crud_helper.dart
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
@@ -42,6 +43,13 @@ class FirebaseCrudHelper {
           (snap) =>
               snap.docs.map((doc) => {'id': doc.id, ...doc.data()}).toList(),
         );
+  }
+
+  /// Guarda una nueva transacción de compra en la colección 'transacciones'.
+  static Future<void> saveTransaction(Map<String, dynamic> transactionData) {
+    return FirebaseFirestore.instance
+        .collection('transacciones')
+        .add(transactionData);
   }
 
   //===============================================================
@@ -105,7 +113,7 @@ class FirebaseCrudHelper {
       DateTime.parse(v);
       return null;
     } catch (e) {
-      return 'Debe ser una fecha válida (formato: YYYY-MM-DD)';
+      return 'Debe ser una fecha válida (formato:YYYY-MM-DD)';
     }
   }
 
